@@ -15,7 +15,7 @@ def tokenize_function(examples):
 
 tokenized_datasets = dataset.map(tokenize_function, batched=True)
 
-# Map intents to labels (update with your exact intents)
+# Map intents to labels
 label_map = {"increase": 0, "decrease": 1, "stop": 2, "change_direction": 3}
 tokenized_datasets = tokenized_datasets.map(lambda examples: {'labels': label_map[examples['intent']]})
 
@@ -24,19 +24,21 @@ model = AutoModelForSequenceClassification.from_pretrained('distilbert-base-unca
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 model.to(device)
 
-# Training args (tune as needed; small dataset → low epochs)
+# Training args
 training_args = TrainingArguments(
     output_dir='./results',
-    num_train_epochs=5,  # 3-5 for small data
+    num_train_epochs=5,
     per_device_train_batch_size=8,
     per_device_eval_batch_size=8,
     warmup_steps=10,
     weight_decay=0.01,
     logging_dir='./logs',
-    evaluation_strategy='epoch',
+    eval_strategy='epoch',  # Updated from evaluation_strategy
     save_strategy='epoch',
     load_best_model_at_end=True,
     metric_for_best_model='f1',
+    logging_steps=10,  # Log more frequently for small dataset
+    save_total_limit=2,  # Save only best 2 checkpoints
 )
 
 def compute_metrics(pred):
