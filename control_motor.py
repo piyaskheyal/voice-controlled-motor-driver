@@ -1,5 +1,4 @@
 import torch
-import glob
 import serial
 import time
 import logging
@@ -30,16 +29,6 @@ current_speed = 0  # PWM 0-255
 current_direction = 'clc'  # Default: clockwise
 MAX_PWM = 255
 MAX_RPM = 1000  # Adjust based on motor specs
-
-def find_serial_port():
-    """Dynamically find serial port for ESP32."""
-    ports = glob.glob('/dev/ttyUSB*') + glob.glob('/dev/ttyACM*')
-    if not ports:
-        logging.warning("No serial ports found. Defaulting to /dev/ttyACM0")
-        print("Warning: No serial ports found. Check ESP32 connection.")
-        return '/dev/ttyACM0'  # Fallback
-    logging.info(f"Found serial port: {ports[0]}")
-    return ports[0]
 
 def predict_intent(text):
     """Predict intent using fine-tuned DistilBERT model."""
@@ -109,10 +98,12 @@ def map_to_command(intent, entities, current_speed, current_direction):
         new_speed = 0
     
     elif intent == 'change_direction':
-        if direction == 'reverse':
+        if direction == 'clc':
+            new_direction = 'clc'
+        elif direction == 'anticlc':
+            new_direction = 'anticlc'
+        elif direction == 'reverse':
             new_direction = 'anticlc' if current_direction == 'clc' else 'clc'
-        elif direction in ['clc', 'anticlc']:
-            new_direction = direction
         else:
             logging.warning(f"No valid direction for 'change_direction' in '{intent}'")
             new_direction = 'anticlc' if current_direction == 'clc' else 'clc'
@@ -122,19 +113,24 @@ def map_to_command(intent, entities, current_speed, current_direction):
 
 def send_to_esp32(speed, direction):
     """Send command to ESP32 via serial."""
-    port = find_serial_port()
+    port = '/dev/ttyACM0'  # Manually set port
     try:
-        with serial.Serial(port, 9600, timeout=1) as ser:
+        with serial.Serial(port, 115200, timeout=1) as ser:
+            ser.reset_input_buffer()  # Clear any stale data
             command = f"{speed},{direction}\n".encode()
             ser.write(command)
             time.sleep(0.1)  # Serial stability
-            logging.info(f"Sent to ESP32: {command.decode().strip()}")
+            logging.info(f"Sent to ESP32 on {port}: {command.decode().strip()}")
             print(f"Motor set to speed {speed}, direction {direction}")
+            return True
     except serial.SerialException as e:
         logging.error(f"Serial error on {port}: {e}")
         print(f"Error: Could not send to ESP32: {e}")
         return False
-    return True
+    except Exception as e:
+        logging.error(f"Unexpected error on {port}: {e}")
+        print(f"Error: Unexpected serial error: {e}")
+        return False
 
 def process_command(text):
     """Full pipeline: Predict intent, extract entities, map to command, send to ESP32."""
