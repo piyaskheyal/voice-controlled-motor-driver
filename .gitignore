@@ -4,3 +4,5 @@ results/
 __pycache__/
 fine_tuned_ner_model/
 ner_results/
+extract_entities.log
+motor_control.log

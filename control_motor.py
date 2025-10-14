@@ -1,45 +1,91 @@
 import torch
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
-from extract_entities import extract_entities
+import glob
 import serial
 import time
+import logging
+from transformers import AutoTokenizer, AutoModelForSequenceClassification
+from extract_entities import extract_entities
+
+# Setup logging
+logging.basicConfig(
+    filename='motor_control.log',
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
 
 # Load intent model and tokenizer (offline)
-model = AutoModelForSequenceClassification.from_pretrained('./fine_tuned_intent_model').to('cuda')
-tokenizer = AutoTokenizer.from_pretrained('distilbert-base-uncased')
+try:
+    model = AutoModelForSequenceClassification.from_pretrained('./fine_tuned_intent_model').to('cuda')
+    tokenizer = AutoTokenizer.from_pretrained('distilbert-base-uncased')
+except Exception as e:
+    logging.error(f"Failed to load intent model: {e}")
+    print(f"Error: Could not load intent model: {e}")
+    exit(1)
+
+# Intent label mapping
 label_map = {0: "increase", 1: "decrease", 2: "stop", 3: "change_direction"}
 
 # Motor state
 current_speed = 0  # PWM 0-255
 current_direction = 'clc'  # Default: clockwise
 MAX_PWM = 255
-MAX_RPM = 1000  # Adjust based on motor specs (e.g., 1000 RPM = max PWM)
+MAX_RPM = 1000  # Adjust based on motor specs
+
+def find_serial_port():
+    """Dynamically find serial port for ESP32."""
+    ports = glob.glob('/dev/ttyUSB*') + glob.glob('/dev/ttyACM*')
+    if not ports:
+        logging.warning("No serial ports found. Defaulting to /dev/ttyACM0")
+        print("Warning: No serial ports found. Check ESP32 connection.")
+        return '/dev/ttyACM0'  # Fallback
+    logging.info(f"Found serial port: {ports[0]}")
+    return ports[0]
 
 def predict_intent(text):
-    """Predict intent using fine-tuned model."""
-    inputs = tokenizer(text, return_tensors='pt', padding=True, truncation=True, max_length=32).to('cuda')
-    outputs = model(**inputs)
-    intent_id = torch.argmax(outputs.logits, dim=1).item()
-    return label_map[intent_id]
+    """Predict intent using fine-tuned DistilBERT model."""
+    try:
+        inputs = tokenizer(text, return_tensors='pt', padding=True, truncation=True, max_length=32).to('cuda')
+        with torch.no_grad():
+            outputs = model(**inputs)
+        intent_id = torch.argmax(outputs.logits, dim=1).item()
+        intent = label_map[intent_id]
+        logging.info(f"Predicted intent for '{text}': {intent}")
+        return intent
+    except Exception as e:
+        logging.error(f"Intent prediction failed for '{text}': {e}")
+        print(f"Error: Intent prediction failed: {e}")
+        return None
 
 def map_to_command(intent, entities, current_speed, current_direction):
     """
     Map intent and entities to ESP32 command (speed 0-255, direction clc/anticlc).
     Returns: (new_speed, new_direction)
     """
-    value = entities['value']
-    unit = entities['unit']
-    direction = entities['direction']
+    if not intent:
+        return current_speed, current_direction
+    
+    value = entities.get('value')
+    unit = entities.get('unit')
+    direction = entities.get('direction')
     
     new_speed = current_speed
     new_direction = current_direction
     
+    # Validate entities
+    if value is not None and not isinstance(value, (int, float)):
+        logging.warning(f"Invalid value '{value}' for intent '{intent}'")
+        value = None
+    if direction not in [None, 'clc', 'anticlc', 'reverse']:
+        logging.warning(f"Invalid direction '{direction}' for intent '{intent}'")
+        direction = None
+    
     if intent in ['increase', 'decrease']:
         # Calculate delta
-        if unit == 'percent':
-            delta = int(MAX_PWM * (value / 100)) if value else 0
-        elif unit == 'rpm':
-            delta = int(value / MAX_RPM * MAX_PWM)  # Scale RPM to PWM
+        delta = 0
+        if unit == 'percent' and value is not None:
+            delta = int(MAX_PWM * (value / 100))
+        elif unit == 'rpm' and value is not None:
+            delta = int(value / MAX_RPM * MAX_PWM)
         elif unit == 'half':
             delta = current_speed // 2
         elif unit == 'quarter':
@@ -49,11 +95,9 @@ def map_to_command(intent, entities, current_speed, current_direction):
         elif unit == 'max':
             delta = MAX_PWM - current_speed
         elif unit == 'min':
-            delta = current_speed  # To 0
+            delta = current_speed
         elif unit == 'default':
             delta = int(MAX_PWM * (10 / 100))  # Default 10%
-        else:
-            delta = 0
         
         # Apply delta
         if intent == 'increase':
@@ -67,30 +111,52 @@ def map_to_command(intent, entities, current_speed, current_direction):
     elif intent == 'change_direction':
         if direction == 'reverse':
             new_direction = 'anticlc' if current_direction == 'clc' else 'clc'
+        elif direction in ['clc', 'anticlc']:
+            new_direction = direction
         else:
-            new_direction = direction  # clc or anticlc
+            logging.warning(f"No valid direction for 'change_direction' in '{intent}'")
+            new_direction = 'anticlc' if current_direction == 'clc' else 'clc'
     
+    logging.info(f"Mapped to command: speed={new_speed}, direction={new_direction}")
     return new_speed, new_direction
 
 def send_to_esp32(speed, direction):
     """Send command to ESP32 via serial."""
+    port = find_serial_port()
     try:
-        with serial.Serial('/dev/ttyUSB0', 9600, timeout=1) as ser:  # Adjust port/baudrate
+        with serial.Serial(port, 9600, timeout=1) as ser:
             command = f"{speed},{direction}\n".encode()
             ser.write(command)
-            time.sleep(0.1)  # Small delay for serial stability
+            time.sleep(0.1)  # Serial stability
+            logging.info(f"Sent to ESP32: {command.decode().strip()}")
+            print(f"Motor set to speed {speed}, direction {direction}")
     except serial.SerialException as e:
-        print(f"Serial error: {e}")
+        logging.error(f"Serial error on {port}: {e}")
+        print(f"Error: Could not send to ESP32: {e}")
+        return False
+    return True
 
 def process_command(text):
     """Full pipeline: Predict intent, extract entities, map to command, send to ESP32."""
     global current_speed, current_direction
     
+    if not text or not text.strip():
+        logging.warning("Empty or invalid command received")
+        print("Error: Please enter a valid command")
+        return None
+    
     # Predict intent
     intent = predict_intent(text)
+    if not intent:
+        return None
     
     # Extract entities
-    entities = extract_entities(text, intent)
+    try:
+        entities = extract_entities(text, intent)
+    except Exception as e:
+        logging.error(f"Entity extraction failed for '{text}': {e}")
+        print(f"Error: Entity extraction failed: {e}")
+        return None
     
     # Map to command
     new_speed, new_direction = map_to_command(intent, entities, current_speed, current_direction)
@@ -100,25 +166,28 @@ def process_command(text):
     current_direction = new_direction
     
     # Send to ESP32
-    send_to_esp32(new_speed, new_direction)
+    success = send_to_esp32(new_speed, new_direction)
     
-    return {"intent": intent, "entities": entities, "speed": new_speed, "direction": new_direction}
+    result = {
+        "intent": intent,
+        "entities": entities,
+        "speed": new_speed,
+        "direction": new_direction,
+        "success": success
+    }
+    logging.info(f"Processed command '{text}': {result}")
+    return result
 
 # Test function
 if __name__ == "__main__":
-    # test_cases = [
-    #     "Increase the speed by 20 percent",
-    #     "Speed up a little",
-    #     "Go full throttle",
-    #     "Decrease the speed by 25%",
-    #     "Make it half as fast",
-    #     "Stop the motor",
-    #     "Change rotation to clockwise",
-    #     "Reverse the direction"
-    # ]
-    
-    # for text in test_cases:
-    #     result = process_command(text)
-    #     print(f"Text: {text} -> {result}")
+    print("Motor Control (type 'exit' to quit)")
     while True:
-        print(process_command(input("Enter command: ")))
+        text = input("Enter command: ")
+        if text.lower() == 'exit':
+            logging.info("Exiting motor control")
+            break
+        result = process_command(text)
+        if result:
+            print(f"Result: {result}")
+        else:
+            print("Command failed. Check logs for details.")
