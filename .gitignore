@@ -2,3 +2,5 @@
 fine_tuned_intent_model/
 results/
 __pycache__/
+fine_tuned_ner_model/
+ner_results/

@@ -106,17 +106,19 @@ def process_command(text):
 
 # Test function
 if __name__ == "__main__":
-    test_cases = [
-        "Increase the speed by 20 percent",
-        "Speed up a little",
-        "Go full throttle",
-        "Decrease the speed by 25%",
-        "Make it half as fast",
-        "Stop the motor",
-        "Change rotation to clockwise",
-        "Reverse the direction"
-    ]
+    # test_cases = [
+    #     "Increase the speed by 20 percent",
+    #     "Speed up a little",
+    #     "Go full throttle",
+    #     "Decrease the speed by 25%",
+    #     "Make it half as fast",
+    #     "Stop the motor",
+    #     "Change rotation to clockwise",
+    #     "Reverse the direction"
+    # ]
     
-    for text in test_cases:
-        result = process_command(text)
-        print(f"Text: {text} -> {result}")
+    # for text in test_cases:
+    #     result = process_command(text)
+    #     print(f"Text: {text} -> {result}")
+    while True:
+        print(process_command(input("Enter command: ")))

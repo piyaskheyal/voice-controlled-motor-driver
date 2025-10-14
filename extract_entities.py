@@ -1,11 +1,15 @@
-import spacy
+from transformers import AutoTokenizer, AutoModelForTokenClassification, pipeline
 
-# Load SpaCy model (offline, assumes en_core_web_sm is downloaded)
-nlp = spacy.load('en_core_web_sm')
+# Load NER model and tokenizer
+tokenizer = AutoTokenizer.from_pretrained('./fine_tuned_ner_model')
+model = AutoModelForTokenClassification.from_pretrained('./fine_tuned_ner_model').to('cuda')
+
+# Initialize NER pipeline
+ner_pipeline = pipeline('ner', model=model, tokenizer=tokenizer, device=0, aggregation_strategy="simple")
 
 def extract_entities(text, intent):
     """
-    Extract entities (value, unit, direction) from command text based on intent.
+    Extract entities using fine-tuned NER model.
     
     Args:
         text (str): Input command (e.g., "Increase speed by 10 percent").
@@ -13,57 +17,38 @@ def extract_entities(text, intent):
     
     Returns:
         dict: {'value': float or int, 'unit': str, 'direction': str or None}
-              - value: Numeric value (e.g., 10, 25, 500) or None.
-              - unit: percent, rpm, half, quarter, double, max, min, default, or None.
-              - direction: clc, anticlc, reverse, or None.
     """
-    doc = nlp(text.lower())
+    entities = ner_pipeline(text.lower())
     
     value = None
-    unit = 'percent' if intent in ['increase', 'decrease'] else None  # Default for increase/decrease
+    unit = None
     direction = None
     
-    # Extract number (value)
-    for token in doc:
-        if token.like_num:
+    # Parse NER results
+    for ent in entities:
+        if ent['entity_group'].startswith('VALUE'):
             try:
-                value = float(token.text) if '.' in token.text else int(token.text)
-                break
-            except ValueError:
+                value = float(ent['word']) if '.' in ent['word'] else int(ent['word'])
+            except:
                 pass
+        elif ent['entity_group'].startswith('UNIT'):
+            unit = ent['word']
+        elif ent['entity_group'].startswith('DIRECTION'):
+            if any(x in ent['word'] for x in ['clockwise', 'forward', 'cw']):
+                direction = 'clc'
+            elif any(x in ent['word'] for x in ['counterclockwise', 'anticlockwise', 'anti clockwise', 'backward', 'ccw']):
+                direction = 'anticlc'
+            else:
+                direction = 'reverse'
     
-    # Units (based on command text)
-    text_lower = text.lower()
-    if any(x in text_lower for x in ['percent', '%']):
-        unit = 'percent'
-    elif 'rpm' in text_lower:
-        unit = 'rpm'
-    elif 'half' in text_lower:
-        unit = 'half'
-    elif 'quarter' in text_lower:
-        unit = 'quarter'
-    elif any(x in text_lower for x in ['double', 'twice']):
-        unit = 'double'
-    elif any(x in text_lower for x in ['maximum', 'full', 'throttle']):
-        unit = 'max'
-    elif any(x in text_lower for x in ['minimum', 'idle']):
-        unit = 'min'
-    elif any(x in text_lower for x in ['little', 'slightly', 'bit', 'gradually', 'faster', 'slower']):
-        unit = 'default'  # For vague terms, use default value
-    
-    # Directions (for change_direction intent)
-    if intent == 'change_direction':
-        if any(x in text_lower for x in ['clockwise', 'forward']):
-            direction = 'clc'
-        elif any(x in text_lower for x in ['counterclockwise', 'anticlockwise', 'anti-clockwise', 'backward']):
-            direction = 'anticlc'
-        elif any(x in text_lower for x in ['reverse', 'opposite', 'other way', 'flip', 'switch']):
-            direction = 'reverse'  # Flip current direction (handled later)
-    
-    # Apply defaults for increase/decrease
+    # Defaults for increase/decrease
     if intent in ['increase', 'decrease'] and value is None:
-        if unit == 'default' or any(x in text_lower for x in ['faster', 'slower', 'quicker', 'more', 'raise', 'boost', 'add', 'ramp', 'step', 'reduce', 'lower', 'ease', 'drop']):
-            value = 10  # Default as specified
+        value = 10
+        unit = 'default' if unit is None else unit
+    
+    # Default for ambiguous change_direction
+    if intent == 'change_direction' and direction is None:
+        direction = 'reverse'
     
     return {'value': value, 'unit': unit, 'direction': direction}
 
@@ -75,11 +60,11 @@ if __name__ == "__main__":
         ("Go full throttle", "increase"),
         ("Decrease the speed by 25%", "decrease"),
         ("Make it half as fast", "decrease"),
-        ("Slow it to minimum", "decrease"),
         ("Stop the motor", "stop"),
         ("Change rotation to clockwise", "change_direction"),
+        ("Rotate anticlockwise", "change_direction"),
         ("Reverse the direction", "change_direction"),
-        ("Switch to anti-clockwise rotation", "change_direction")
+        ("Change direction", "change_direction")
     ]
     
     for text, intent in test_cases:
