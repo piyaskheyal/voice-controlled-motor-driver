@@ -11,16 +11,16 @@ dataset = dataset['train'].train_test_split(test_size=0.2)  # 80/20 split
 tokenizer = AutoTokenizer.from_pretrained('distilbert-base-uncased')
 
 def tokenize_function(examples):
-    return tokenizer(examples['text'], padding='max_length', truncation=True, max_length=32)  # Short commands
+    return tokenizer(examples['sentence'], padding='max_length', truncation=True, max_length=32)  # Short commands
 
 tokenized_datasets = dataset.map(tokenize_function, batched=True)
 
 # Map intents to labels
-label_map = {"increase": 0, "decrease": 1, "stop": 2, "change_direction": 3}
+label_map = {"increase": 0, "decrease": 1, "stop": 2, "set_speed": 3, "change_direction": 4}
 tokenized_datasets = tokenized_datasets.map(lambda examples: {'labels': label_map[examples['intent']]})
 
 # Model (small, fine-tune on GPU)
-model = AutoModelForSequenceClassification.from_pretrained('distilbert-base-uncased', num_labels=4)
+model = AutoModelForSequenceClassification.from_pretrained('distilbert-base-uncased', num_labels=5)
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 model.to(device)
 
