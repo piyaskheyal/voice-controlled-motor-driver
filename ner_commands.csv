@@ -1,121 +1,176 @@
 sentence,labels
-"Increase the speed by 10 percent","O O O O B-VALUE B-UNIT"
-"Speed up a little","O O O O"
-"Go faster","O O"
-"Boost the motor speed","O O O O"
-"Add 20% more speed","O B-VALUE O O"
-"Turn it up by 15%","O O O O B-VALUE"
-"Make it run quicker","O O O O"
-"Raise the speed slightly","O O O O"
-"Accelerate by 30%","O O B-VALUE"
-"Give it more power","O O O O"
-"Double the current speed","O O O O"
-"Make it twice as fast","O O O O O"
-"Increase the RPM by 500","O O B-UNIT O B-VALUE"
-"Bring the speed to 80%","O O O O B-VALUE"
-"Set the speed to maximum","O O O O B-UNIT"
-"Go full throttle","O O O"
-"Ramp up the speed gradually","O O O O O"
-"Step up the motor speed","O O O O O"
-"Go a bit faster than now","O O O O O O"
-"Increase the speed by a quarter of the current value","O O O O O B-UNIT O O O O"
-"Decrease the speed by 10 percent","O O O O B-VALUE B-UNIT"
-"Slow down a bit","O O O O"
-"Go slower","O O"
-"Reduce the speed by 25%","O O O O B-VALUE"
-"Drop the RPM by 300","O O B-UNIT O B-VALUE"
-"Turn it down by 20%","O O O O B-VALUE"
-"Make it half as fast","O O B-UNIT O O"
-"Cut the speed in half","O O O O B-UNIT"
-"Bring down the speed","O O O O"
-"Ease off the throttle","O O O O"
-"Lower the motor speed","O O O O"
-"Reduce speed to 50%","O O O B-VALUE"
-"Slow it down gradually","O O O O"
-"Make it go slower by a quarter","O O O O O O B-UNIT"
-"Decrease the speed slightly","O O O O"
-"Reduce the power","O O O"
-"Ease down by 15%","O O O B-VALUE"
-"Slow it to minimum","O O O B-UNIT"
-"Bring it to idle speed","O O O O O"
-"Drop the speed a little","O O O O O"
-"Stop","O"
-"Halt the motor","O O O"
-"Stop the rotation","O O O"
-"Shut down the motor","O O O O"
-"Turn it off","O O O"
-"Pause the rotation","O O O"
-"Cut the power","O O O"
-"Hold it right there","O O O O"
-"Stop moving","O O"
-"Freeze the motor","O O O"
-"Brake the motor","O O O"
-"Stop spinning","O O"
-"Cease rotation","O O"
-"Emergency stop","O O"
-"Kill the power","O O O"
-"Cut the speed to zero","O O O O O"
-"Turn off the motor immediately","O O O O O"
-"Bring it to a stop","O O O O O"
-"Stop everything","O O"
-"Motor off","O O"
-"Reverse the direction","O O O"
-"Change rotation to clockwise","O O O B-DIRECTION"
-"Change rotation to counterclockwise","O O O B-DIRECTION"
-"Rotate in the opposite direction","O O O O O"
-"Switch the rotation","O O O"
-"Flip the direction","O O O"
-"Make it spin backward","O O O O"
-"Turn it around","O O O"
-"Reverse the motor","O O O"
-"Rotate the other way","O O O O"
-"Change to forward direction","O O O O"
-"Change to reverse mode","O O O O"
-"Switch to anti-clockwise rotation","O O B-DIRECTION O"
-"Make it go clockwise","O O O B-DIRECTION"
-"Go in the reverse direction","O O O O O"
-"Change the spin direction","O O O O"
-"Spin the other way","O O O O"
-"Switch direction immediately","O O O"
-"Rotate backward","O O"
-"Start rotating forward","O O O"
-"Change direction","O O"
-"Switch way","O O"
-"Flip to ccw","O O B-DIRECTION"
-"Go clockwise now","O B-DIRECTION O"
-"Rotate ccw","O B-DIRECTION"
-"Change to other direction","O O O O"
-"Spin anticlockwise","O B-DIRECTION"
-"Go forward","O O"
-"Reverse it","O O"
-"Switch to cw","O O B-DIRECTION"
-"Faster by 10%","O O B-VALUE"
-"Slower by 20 percent","O O B-VALUE B-UNIT"
-"Full speed","O O"
-"Idle now","O B-UNIT"
-"Rotate anti clockwise","O B-DIRECTION"
-"Change to backward","O O O"
-"Speed up 15%","O O B-VALUE"
-"Reduce by 30%","O O B-VALUE"
-"Stop now","O O"
-"Go reverse","O O"
-"Turn clockwise","O B-DIRECTION"
-"Switch rotation","O O"
-"Increase by twenty five percent","O O B-VALUE I-VALUE B-UNIT"
-"Decrease to half speed","O O B-UNIT O"
-"Set to 75%","O O B-VALUE"
-"Go anticlockwise quickly","O B-DIRECTION O"
-"Flip rotation","O O"
-"Change to cw mode","O O B-DIRECTION O"
-"Rotate forward","O O"
-"Drop speed by 10","O O O B-VALUE"
-"Boost speed a bit","O O O O"
-"Reverse direction now","O O O"
-"Spin clockwise","O B-DIRECTION"
-"Lower to 25%","O O B-VALUE"
-"Go full speed","O O O"
-"Change to anticlockwise","O O B-DIRECTION"
-"Rotate other way","O O O"
-"Switch to reverse","O O O"
-"Go cw","O B-DIRECTION"
-"Stop immediately","O O"
+Increase by double of current speed,O O B-VALUE B-UNIT O O
+Decrease the speed by 100 %,O O O O B-VALUE B-UNIT
+Adjust speed to double of maximum,O O O B-VALUE B-UNIT O
+Change rotation towards counterclockwise,O O O B-DIRECTION
+Shut down the rotation,O O O O
+Make it 70 % faster,O O B-VALUE B-UNIT O
+Drop the speed by 70 %,O O O O B-VALUE B-UNIT
+Fix speed to 70%,O O O O
+Flip the direction,O O O
+Stop the motor,O O O
+Speed up by 50 percent,O O O B-VALUE B-UNIT
+Slow down by 50 percent,O O O B-VALUE B-UNIT
+Lock the speed at 50 percent,O O O O B-VALUE B-UNIT
+Turn motor counterclockwise,O O B-DIRECTION
+Turn off the motor,O O O O
+Raise the speed by 10 %,O O O O B-VALUE B-UNIT
+Decrease the speed by 10 %,O O O O B-VALUE B-UNIT
+Set it to 10 %,O O O B-VALUE B-UNIT
+Make it spin the other way,O O O O O O
+Stop the motor,O O O
+Make it 10 percent faster,O O B-VALUE B-UNIT O
+Make it run half slower,O O O B-VALUE B-UNIT
+Set the speed to 10 percent,O O O O B-VALUE B-UNIT
+Change direction to clockwise,O O O B-DIRECTION
+Stop moving,O O
+Go faster by 40 %,O O O B-VALUE B-UNIT
+Decrease by quarter of current speed,O O B-VALUE B-UNIT O O
+Fix speed to 40%,O O O O
+Switch rotation to counterclockwise,O O O B-DIRECTION
+Kill the power,O O O
+Add 25% to the current speed,O O O O O O
+Decrease by half of current speed,O O B-VALUE B-UNIT O O
+Set motor speed to 25%,O O O O O
+Change direction to anticlockwise,O O O B-DIRECTION
+Stop moving,O O
+Raise the speed by 25 %,O O O O B-VALUE B-UNIT
+Cut down the speed by 25 %,O O O O O B-VALUE B-UNIT
+Lock the speed at 25 %,O O O O B-VALUE B-UNIT
+Reverse the direction,B-DIRECTION O O
+Kill the power,O O O
+Speed up by 40 %,O O O B-VALUE B-UNIT
+Make it 40 % slower,O O B-VALUE B-UNIT O
+Lock the speed at 40 %,O O O O B-VALUE B-UNIT
+Change rotation towards opposite direction,O O O O O
+Stop moving,O O
+Make it 100 percent faster,O O B-VALUE B-UNIT O
+Slow down by 100 percent,O O O B-VALUE B-UNIT
+Adjust speed to quarter of maximum,O O O B-VALUE B-UNIT O
+Turn motor clockwise,O O B-DIRECTION
+Halt rotation,O O
+Go faster by 80 percent,O O O B-VALUE B-UNIT
+Decrease the speed by 80 percent,O O O O B-VALUE B-UNIT
+Set it to 80 percent,O O O B-VALUE B-UNIT
+Change direction to opposite direction,O O O O O
+Turn off the motor,O O O O
+Increase by half of current speed,O O B-VALUE B-UNIT O O
+Cut down the speed by 80 percent,O O O O O B-VALUE B-UNIT
+Fix speed to 80percent,O O O O
+Make it spin the other way,O O O O O O
+Stop the motor,O O O
+Go faster by 25 percent,O O O B-VALUE B-UNIT
+Reduce speed by 25percent,O O O O
+Keep speed constant at 25 percent,O O O O B-VALUE B-UNIT
+Turn motor reverse,O O B-DIRECTION
+Shut down the rotation,O O O O
+Increase by twice of current speed,O O B-VALUE B-UNIT O O
+Cut down the speed by 50 percent,O O O O O B-VALUE B-UNIT
+Lock the speed at 50 percent,O O O O B-VALUE B-UNIT
+Flip the direction,O O O
+Pause the motor,O O O
+Go faster by 25 %,O O O B-VALUE B-UNIT
+Make it run half slower,O O O B-VALUE B-UNIT
+Keep speed constant at 25 %,O O O O B-VALUE B-UNIT
+Reverse the direction,B-DIRECTION O O
+Shut down the rotation,O O O O
+Make it run quarter faster,O O O B-VALUE B-UNIT
+Make it 70 percent slower,O O B-VALUE B-UNIT O
+Maintain the speed at 70 percent,O O O O B-VALUE B-UNIT
+Change direction to clockwise,O O O B-DIRECTION
+Stop the motor,O O O
+Go faster by 90 %,O O O B-VALUE B-UNIT
+Make it run double slower,O O O B-VALUE B-UNIT
+Fix speed to 90%,O O O O
+Change rotation towards opposite direction,O O O O O
+Turn off the motor,O O O O
+Raise the speed by 40 percent,O O O O B-VALUE B-UNIT
+Drop the speed by 40 percent,O O O O B-VALUE B-UNIT
+Set it to 40 percent,O O O B-VALUE B-UNIT
+Turn motor anticlockwise,O O B-DIRECTION
+Pause the motor,O O O
+Add 80percent to the current speed,O O O O O O
+Drop the speed by 80 percent,O O O O B-VALUE B-UNIT
+Set the speed to 80 percent,O O O O B-VALUE B-UNIT
+Make it spin the other way,O O O O O O
+Turn off the motor,O O O O
+Make it run double faster,O O O B-VALUE B-UNIT
+Reduce speed by 80%,O O O O
+Fix speed to 80%,O O O O
+Make it spin the other way,O O O O O O
+Stop moving,O O
+Go faster by 30 percent,O O O B-VALUE B-UNIT
+Cut down the speed by 30 percent,O O O O O B-VALUE B-UNIT
+Set motor speed to 30percent,O O O O O
+Change direction to counterclockwise,O O O B-DIRECTION
+Pause the motor,O O O
+Increase by quarter of current speed,O O B-VALUE O O O
+Reduce speed by 10percent,O O O O
+Set it to 10 percent,O O O B-VALUE B-UNIT
+Switch rotation to counterclockwise,O O O B-DIRECTION
+Pause the motor,O O O
+Increase by twice of current speed,O O B-VALUE B-UNIT O O
+Drop the speed by 40 percent,O O O O B-VALUE B-UNIT
+Set the speed to 40 percent,O O O O B-VALUE B-UNIT
+Rotate clockwise,O B-DIRECTION
+Emergency stop,O O
+Increase by quarter of current speed,O O B-VALUE B-UNIT O O
+Reduce speed by 100percent,O O O O
+Keep speed constant at 100 percent,O O O O B-VALUE B-UNIT
+Rotate reverse,O B-DIRECTION
+Pause the motor,O O O
+Make it 40 percent faster,O O B-VALUE B-UNIT O
+Decrease the speed by 40 percent,O O O O B-VALUE B-UNIT
+Maintain the speed at 40 percent,O O O O B-VALUE B-UNIT
+Reverse the direction,B-DIRECTION O O
+Stop the motor,O O O
+Make it run quarter faster,O O O B-VALUE B-UNIT
+Make it run quarter slower,O O O B-VALUE B-UNIT
+Adjust speed to quarter of maximum,O O O B-VALUE B-UNIT O
+Switch rotation to clockwise,O O O B-DIRECTION
+Stop the motor,O O O
+Go faster by 70 percent,O O O B-VALUE B-UNIT
+Slow down by 70 percent,O O O B-VALUE B-UNIT
+Adjust speed to quarter of maximum,O O O B-VALUE B-UNIT O
+Rotate anticlockwise,O B-DIRECTION
+Halt rotation,O O
+Add 100percent to the current speed,O O O O O O
+Decrease the speed by 100 percent,O O O O B-VALUE B-UNIT
+Adjust speed to twice of maximum,O O O B-VALUE B-UNIT O
+Switch rotation to clockwise,O O O B-DIRECTION
+Turn off the motor,O O O O
+Go faster by 50 percent,O O O B-VALUE B-UNIT
+Decrease by double of current speed,O O B-VALUE B-UNIT O O
+Maintain the speed at 50 percent,O O O O B-VALUE B-UNIT
+Change direction to anticlockwise,O O O B-DIRECTION
+Emergency stop,O O
+Increase the speed by 10 percent,O O O O B-VALUE B-UNIT
+Decrease the speed by 10 percent,O O O O B-VALUE B-UNIT
+Set it to 10 percent,O O O B-VALUE B-UNIT
+Rotate counterclockwise,O B-DIRECTION
+Kill the power,O O O
+Increase the speed by 100 percent,O O O O B-VALUE B-UNIT
+Make it 100 percent slower,O O B-VALUE B-UNIT O
+Keep speed constant at 100 percent,O O O O B-VALUE B-UNIT
+Switch rotation to clockwise,O O O B-DIRECTION
+Stop moving,O O
+Go faster by 25 percent,O O O B-VALUE B-UNIT
+Drop the speed by 25 percent,O O O O B-VALUE B-UNIT
+Set it to 25 percent,O O O B-VALUE B-UNIT
+Reverse the direction,B-DIRECTION O O
+Turn off the motor,O O O O
+Go faster by 20 %,O O O B-VALUE B-UNIT
+Drop the speed by 20 %,O O O O B-VALUE B-UNIT
+Keep speed constant at 20 %,O O O O B-VALUE B-UNIT
+Rotate opposite direction,O O O
+Emergency stop,O O
+Make it 50 percent faster,O O B-VALUE B-UNIT O
+Make it run double slower,O O O B-VALUE B-UNIT
+Fix speed to 50percent,O O O O
+Turn motor anticlockwise,O O B-DIRECTION
+Stop moving,O O
+Speed up by 25 percent,O O O B-VALUE B-UNIT
+Reduce speed by 25percent,O O O O
+Fix speed to 25percent,O O O O
+Change direction to anticlockwise,O O O B-DIRECTION
+Turn off the motor,O O O O
