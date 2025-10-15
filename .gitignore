@@ -7,3 +7,4 @@ ner_results/
 extract_entities.log
 motor_control.log
 fine_tuned_spacy_ner/
+*.log

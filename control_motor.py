@@ -4,6 +4,7 @@ import time
 import logging
 from transformers import AutoTokenizer, AutoModelForSequenceClassification
 from extract_entities import extract_entities
+from voice_to_text import voice_to_text
 
 # Setup logging
 logging.basicConfig(
@@ -222,33 +223,19 @@ def process_command(text):
     logging.info(f"Processed command '{text}': {result}")
     return result
 
-# Test function
 if __name__ == "__main__":
-    print("Motor Control (type 'exit' to quit)")
+    print("Voice-Controlled Motor (type 'exit' to quit)")
     while True:
-        text = input("Enter command: ")
-        if text.lower() == 'exit':
+        command = input("Press Enter to speak or type 'exit' to quit: ")
+        if command.lower() == 'exit':
             logging.info("Exiting motor control")
             break
-        result = process_command(text)
-        if result:
-            print(f"Result: {result}")
+        text = voice_to_text()
+        if text:
+            result = process_command(text)
+            if result:
+                print(f"Result: {result}")
+            else:
+                print("Command failed. Check logs for details.")
         else:
-            print("Command failed. Check logs for details.")
-
-### Changes Made
-# 1. **Fixed `map_to_command`**:
-#    - For `intent: 'increase'` and `unit: '%'`, increment `current_speed` by `delta = int(MAX_PWM * (value / 100))`.
-#    - For `intent: 'set_speed'` and `unit: '%'`, set `new_speed = min(int(MAX_PWM * (value / 100)), MAX_PWM)` (absolute).
-#    - Adjusted `half`, `quarter`, `double`, `max`, `min` for both intents (e.g., `set_speed` with `unit: 'half'` sets `new_speed = MAX_PWM // 2`).
-#    - For `increase` with `unit: 'half'`: Doubles current speed.
-#    - For `decrease` with `unit: 'half'`: Halves current speed.
-#    - Logged `delta` and `new_speed` calculations for debugging.
-# 2. **Updated Logging**:
-#    - Log `entities` after extraction to confirm `unit: '%'`.
-#    - Log `value` and `delta` for percentage cases.
-# 3. **Preserved Working Components**:
-#    - Kept `send_to_esp32` (115200 baud, `/dev/ttyACM0`).
-#    - Maintained `predict_intent` and `extract_entities` integration.
-
-### Expected Output
+            print("No command detected. Try again.")
