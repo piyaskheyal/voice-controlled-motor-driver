@@ -60,7 +60,7 @@ Upload the following sketch to your ESP32 using Arduino IDE or PlatformIO:
 
 ```cpp
 void setup() {
-  Serial.begin(9600);
+  Serial.begin(115200);
   while (!Serial) { ; }
   Serial.println("ESP32 Serial Monitor Ready");
 }
@@ -76,6 +76,9 @@ void loop() {
   }
 }
 ```
+---
+### 3. ESP32 Code
+Get the ESP32 code here - https://github.com/piyaskheyal/VMCD-esp32
 
 ---
 
@@ -96,7 +99,7 @@ python control_motor.py
 - Open the Serial Monitor in Arduino IDE or use `screen`:
 
 ```bash
-screen /dev/ttyACM0 9600
+screen /dev/ttyACM0 115200
 ```
 
 - You should see received commands printed.
