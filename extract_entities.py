@@ -1,4 +1,5 @@
 import spacy
+import re
 import logging
 
 # Setup logging
@@ -17,7 +18,7 @@ except Exception as e:
 
 def extract_entities(text, intent=None):
     """
-    Extract entities (value, unit, direction) from text using spaCy NER model.
+    Extract entities (value, unit, direction) from text using spaCy NER model with regex fallback.
     Args:
         text (str): Input command (e.g., "set the speed to 90%").
         intent (str, optional): Intent from predict_intent (e.g., "set_speed").
@@ -29,13 +30,17 @@ def extract_entities(text, intent=None):
         return {'value': None, 'unit': None, 'direction': None}
 
     try:
+        # Lowercase for consistency
+        text = text.lower()
         doc = nlp(text)
         entities = {'value': None, 'unit': None, 'direction': None}
         
         for ent in doc.ents:
             if ent.label_ == "VALUE":
                 try:
-                    entities['value'] = float(ent.text) if '.' in ent.text else int(ent.text)
+                    # Handle percentage or numeric values
+                    value_text = ent.text.replace('%', '').strip()
+                    entities['value'] = float(value_text) if '.' in value_text else int(value_text)
                 except ValueError:
                     logging.warning(f"Invalid VALUE entity: '{ent.text}'")
                     entities['value'] = None
@@ -43,17 +48,15 @@ def extract_entities(text, intent=None):
                 unit = ent.text.lower()
                 if unit in ['percent', '%']:
                     entities['unit'] = '%'
-                elif unit in ['rpm']:
-                    entities['unit'] = 'rpm'
                 elif unit in ['half']:
                     entities['unit'] = 'half'
                 elif unit in ['quarter']:
                     entities['unit'] = 'quarter'
                 elif unit in ['double']:
                     entities['unit'] = 'double'
-                elif unit in ['max']:
+                elif unit in ['max', 'maximum']:
                     entities['unit'] = 'max'
-                elif unit in ['min']:
+                elif unit in ['min', 'minimum']:
                     entities['unit'] = 'min'
                 else:
                     logging.warning(f"Unknown UNIT entity: '{unit}'")
@@ -66,9 +69,22 @@ def extract_entities(text, intent=None):
                     entities['direction'] = 'anticlc'
                 elif direction in ['reverse']:
                     entities['direction'] = 'reverse'
+                elif direction in ['max', 'maximum', 'min', 'minimum']:
+                    logging.warning(f"Misclassified DIRECTION entity: '{direction}', correcting to UNIT")
+                    entities['direction'] = None
+                    entities['unit'] = 'max' if direction in ['max', 'maximum'] else 'min'
                 else:
                     logging.warning(f"Unknown DIRECTION entity: '{direction}'")
                     entities['direction'] = None
+        
+        # Regex fallback for max/min
+        if entities['unit'] is None:
+            if re.search(r'\b(max|maximum)\b', text):
+                entities['unit'] = 'max'
+                logging.info(f"Regex fallback: Set unit to 'max' for '{text}'")
+            elif re.search(r'\b(min|minimum)\b', text):
+                entities['unit'] = 'min'
+                logging.info(f"Regex fallback: Set unit to 'min' for '{text}'")
         
         # Intent-based fallback for direction
         if intent == "change_direction" and entities['direction'] is None:

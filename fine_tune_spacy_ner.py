@@ -71,7 +71,7 @@ for label in ["VALUE", "UNIT", "DIRECTION"]:
 other_pipes = [pipe for pipe in nlp.pipe_names if pipe != "ner"]
 with nlp.disable_pipes(*other_pipes):
     optimizer = nlp.begin_training()
-    for itn in range(20):  # 20 epochs
+    for itn in range(12):  # 20 epochs
         random.shuffle(train_data)
         losses = {}
         batches = minibatch(train_data, size=8)
