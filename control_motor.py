@@ -13,9 +13,14 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
+# Device detection
+device = 'cuda' if torch.cuda.is_available() else 'cpu'
+logging.info(f"Using device: {device}")
+print(f"Using device: {device}")
+
 # Load intent model and tokenizer (offline)
 try:
-    model = AutoModelForSequenceClassification.from_pretrained('./fine_tuned_intent_model').to('cuda')
+    model = AutoModelForSequenceClassification.from_pretrained('./fine_tuned_intent_model').to(device)
     tokenizer = AutoTokenizer.from_pretrained('distilbert-base-uncased')
 except Exception as e:
     logging.error(f"Failed to load intent model: {e}")
@@ -33,7 +38,7 @@ MAX_PWM = 255
 def predict_intent(text):
     """Predict intent using fine-tuned DistilBERT model."""
     try:
-        inputs = tokenizer(text, return_tensors='pt', padding=True, truncation=True, max_length=32).to('cuda')
+        inputs = tokenizer(text, return_tensors='pt', padding=True, truncation=True, max_length=32).to(device)
         with torch.no_grad():
             outputs = model(**inputs)
         intent_id = torch.argmax(outputs.logits, dim=1).item()
