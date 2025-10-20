@@ -29,7 +29,6 @@ label_map = {0: "increase", 1: "decrease", 2: "stop", 3: "set_speed", 4: "change
 current_speed = 0  # PWM 0-255
 current_direction = 'clc'  # Default: clockwise
 MAX_PWM = 255
-MAX_RPM = 1000  # Adjust based on motor specs
 
 def predict_intent(text):
     """Predict intent using fine-tuned DistilBERT model."""
@@ -78,9 +77,6 @@ def map_to_command(intent, entities, current_speed, current_direction):
         if unit == '%' and value is not None:
             delta = int(MAX_PWM * (value / 100))
             logging.info(f"Percent unit detected, value={value}, delta={delta}")
-        elif unit == 'rpm' and value is not None:
-            delta = int(value / MAX_RPM * MAX_PWM)
-            logging.info(f"RPM unit detected, value={value}, delta={delta}")
         elif unit == 'half':
             delta = current_speed // 2
             logging.info(f"Half unit detected, delta={delta}")
@@ -90,12 +86,12 @@ def map_to_command(intent, entities, current_speed, current_direction):
         elif unit == 'double':
             delta = current_speed
             logging.info(f"Double unit detected, delta={delta}")
-        elif unit == 'max':
+        elif unit in ['max', 'maximum']:
             delta = MAX_PWM - current_speed
-            logging.info(f"Max unit detected, delta={delta}")
-        elif unit == 'min':
+            logging.info(f"Max/maximum unit detected, delta={delta}")
+        elif unit in ['min', 'minimum']:
             delta = current_speed
-            logging.info(f"Min unit detected, delta={delta}")
+            logging.info(f"Min/minimum unit detected, delta={delta}")
         elif unit == 'default':
             delta = int(MAX_PWM * (10 / 100))  # Default 10%
             logging.info(f"Default unit detected, delta={delta}")
@@ -113,9 +109,6 @@ def map_to_command(intent, entities, current_speed, current_direction):
         if unit == '%' and value is not None:
             new_speed = min(int(MAX_PWM * (value / 100)), MAX_PWM)
             logging.info(f"Set percent speed, value={value}, new_speed={new_speed}")
-        elif unit == 'rpm' and value is not None:
-            new_speed = min(int(value / MAX_RPM * MAX_PWM), MAX_PWM)
-            logging.info(f"Set RPM speed, value={value}, new_speed={new_speed}")
         elif unit == 'half':
             new_speed = MAX_PWM // 2
             logging.info(f"Set half speed, new_speed={new_speed}")
@@ -125,12 +118,12 @@ def map_to_command(intent, entities, current_speed, current_direction):
         elif unit == 'double':
             new_speed = MAX_PWM  # Full speed for double
             logging.info(f"Set double speed, new_speed={new_speed}")
-        elif unit == 'max':
+        elif unit in ['max', 'maximum']:
             new_speed = MAX_PWM
-            logging.info(f"Set max speed, new_speed={new_speed}")
-        elif unit == 'min':
+            logging.info(f"Set max/maximum speed, new_speed={new_speed}")
+        elif unit in ['min', 'minimum']:
             new_speed = 0
-            logging.info(f"Set min speed, new_speed={new_speed}")
+            logging.info(f"Set min/minimum speed, new_speed={new_speed}")
         elif unit == 'default':
             new_speed = int(MAX_PWM * 0.1)  # Default 10%
             logging.info(f"Set default speed, new_speed={new_speed}")
