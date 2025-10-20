@@ -8,19 +8,23 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s'
 )
 
+# Initialize recognizer and adjust for ambient noise once
+recognizer = sr.Recognizer()
+try:
+    with sr.Microphone() as source:
+        logging.info("Adjusting for ambient noise at startup...")
+        print("Adjusting for ambient noise... Please wait.")
+        recognizer.adjust_for_ambient_noise(source, duration=2)
+        logging.info("Ambient noise adjustment completed")
+except Exception as e:
+    logging.error(f"Microphone setup or noise adjustment failed: {e}")
+    print(f"Error: Microphone setup or noise adjustment failed: {e}")
+    exit(1)
+
 def voice_to_text():
-    """Capture a single spoken sentence and convert to text."""
-    # Initialize recognizer
-    recognizer = sr.Recognizer()
-    
-    # Set up microphone
+    """Capture a single spoken sentence and convert to text using pre-configured recognizer."""
     try:
         with sr.Microphone() as source:
-            # Adjust for ambient noise
-            logging.info("Adjusting for ambient noise...")
-            print("Adjusting for ambient noise... Please wait.")
-            recognizer.adjust_for_ambient_noise(source, duration=2)
-            
             # Prompt user to speak
             print("Speak your command (pause to stop recording):")
             logging.info("Listening for voice command...")
